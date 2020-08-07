@@ -1,5 +1,5 @@
 {
-    "name": "jamespi/php-redis",
+    "name": "jamespi/php-ga",
     "description": "google analytics's php client. Contains elasticsearch and Prometheus calls",
     "type": "library",
     "license": "MIT",
