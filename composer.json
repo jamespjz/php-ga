@@ -1,0 +1,7 @@
+{
+    "require": {
+        "google/apiclient": "^2.0",
+        "endclothing/prometheus_client_php": "^0.9.1",
+        "elasticsearch/elasticsearch": "^7.0"
+    }
+}
