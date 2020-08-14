@@ -18,7 +18,7 @@ class Start
      * 服务配置项
      * @var mixed
      */
-    protected static $config = [];
+    public $config = [];
     /**
      * 服务场景类型
      * @var int
@@ -35,7 +35,7 @@ class Start
 
     public function __construct()
     {
-        self::$config = require_once dirname(__DIR__).'/Config/Config.php';
+        $this->config = require_once __DIR__.'/Config/Config.php';
     }
 
     /**
@@ -46,12 +46,12 @@ class Start
      * @param array $searchParams 查询条件
      * @return $this
      */
-    public function run(array $dimensionConfig, array $metricConfig, array $searchParams, int $type)
+    public function run(array $dimensionConfig, array $metricConfig, array $searchParams, int $type = 1)
     {
         $this->type = $type;
         switch ($type){
             case 1:
-                $this->model = (new GaStart($dimensionConfig, $metricConfig, $searchParams));
+                $this->model = (new GaStart($dimensionConfig, $metricConfig, $searchParams, $this->config));
                 break;
             case 2:
                 $this->model = (new ElasticSearchStart());
@@ -60,7 +60,7 @@ class Start
                 $this->model = (new PrometheusStart());
                 break;
             default:
-                $this->model = (new GaStart());
+                $this->model = (new GaStart($dimensionConfig, $metricConfig, $searchParams, $this->config));
                 break;
         }
 
@@ -70,14 +70,10 @@ class Start
     public function __call(string $name, array $arguments)
     {
         // TODO: Implement __call() method.
-        if ($this->type == 1)
-            $server = new ProducerServer();
-        else
-            $server = new ConsumerServer();
         try{
             $class = new ReflectionClass($this->model);
             $class->getMethod($name);
-            $data = call_user_func_array([$this->model, $name], [$server, $arguments[0]]);
+            $data = call_user_func_array([$this->model, $name], $arguments);
             $data = json_decode($data, true);
             if ($data['status'] == 'success')
                 return json_encode(['status'=>'success', 'msg'=>'调用成功！', 'data'=>isset($data['data'])?$data['data']:[]]);

@@ -39,6 +39,11 @@ class GaStart
      */
     protected $searchParams;
     /**
+     * es索引配置
+     * @var array
+     */
+    protected $config;
+    /**
      * ga获取数据对象
      * @var
      */
@@ -49,10 +54,13 @@ class GaStart
      * @param array $dimensionConfig
      * @param array $metricConfig
      * @param array $searchParams
+     * @param array $config;
      */
-    public function __construct(array $dimensionConfig, array $metricConfig, array $searchParams)
+    public function __construct(array $dimensionConfig, array $metricConfig, array $searchParams, array $config)
     {
-        $this->KEY_FILE_LOCATION = require_once dirname(dirname(__DIR__)).'/client_secrets.php';
+        $this->KEY_FILE_LOCATION = dirname(dirname(__DIR__)).'/client_secrets.json';
+        $this->searchParams = $searchParams;
+        $this->config = $config;
         $this->init($dimensionConfig, $metricConfig);
     }
 
@@ -63,11 +71,11 @@ class GaStart
      */
     public function init(array $dimensionConfig, array $metricConfig){
         foreach ($dimensionConfig as $k1 => $v1) {
-            $dimensionResponse = getReport($v1);
+            $dimensionResponse = $this->getReport($v1);
             $this->dimensionData[] = $dimensionResponse;
         }
         foreach ($metricConfig as $k2 => $v2) {
-            $metricResponse = getSession($v2);
+            $metricResponse = $this->getSession($v2);
             $this->metricData[] = $metricResponse;
         }
     }
@@ -78,7 +86,7 @@ class GaStart
      * @return Google_Service_AnalyticsReporting_Dimension
      */
     private function getReport(string $dimensionInfo){
-        $country = new Google_Service_AnalyticsReporting_Dimension();
+        $country = new \Google_Service_AnalyticsReporting_Dimension();
         $country->setName($dimensionInfo);
 
         return $country;
@@ -90,7 +98,7 @@ class GaStart
      * @return Google_Service_AnalyticsReporting_Metric
      */
     private function getSession(string $metricInfo){
-        $sessions = new Google_Service_AnalyticsReporting_Metric();
+        $sessions = new \Google_Service_AnalyticsReporting_Metric();
         $sessions->setExpression($metricInfo);
 
         return $sessions;
@@ -101,11 +109,11 @@ class GaStart
      * @return $this
      */
     public function initializeAnalytics(){
-        $client = new Google_Client();
+        $client = new \Google_Client();
         $client->setApplicationName("Hello Analytics Reporting");
         $client->setAuthConfig($this->KEY_FILE_LOCATION);
         $client->setScopes(['https://www.googleapis.com/auth/analytics.readonly']);
-        $this->analytics = new Google_Service_AnalyticsReporting($client);
+        $this->analytics = new \Google_Service_AnalyticsReporting($client);
 
         return $this;
     }
@@ -118,18 +126,19 @@ class GaStart
         if ( !(isset($this->searchParams['viewId'])&&!empty($this->searchParams['viewId'])) ){
             throw new Exception("请选择视图id");
         }
-        $viewId = isset($this->searchParams['viewId'])?$this->searchParams['viewId']:'';
-        $beforeTime = isset($this->searchParams['beforeTime'])?$this->searchParams['beforeTime']:'1daysAgo';
-        $lastTime = isset($this->searchParams['lastTime'])?$this->searchParams['lastTime']:'yesterday';
+        $viewId = $this->searchParams['viewId'];
+        $beforeTime = isset($this->searchParams['beforeTime'])?$this->searchParams['beforeTime']:date("Y-m-d", strtotime('yesterday'));
+        $lastTime = isset($this->searchParams['lastTime'])?$this->searchParams['lastTime']:date("Y-m-d");
         $pageSize = isset($this->searchParams['pageSize'])?$this->searchParams['pageSize']:10000;
         $pageToken = isset($this->searchParams['pageToken'])?$this->searchParams['pageToken']:'0';
 
         // Create the DateRange object.
-        $dateRange = new Google_Service_AnalyticsReporting_DateRange();
+        $dateRange = new \Google_Service_AnalyticsReporting_DateRange();
         $dateRange->setStartDate($beforeTime);
         $dateRange->setEndDate($lastTime);
+
         // Create the ReportRequest object.
-        $request = new Google_Service_AnalyticsReporting_ReportRequest();
+        $request = new \Google_Service_AnalyticsReporting_ReportRequest();
         $request->setViewId($viewId);
         $request->setDateRanges($dateRange);
         $request->setMetrics($this->metricData);
@@ -137,22 +146,22 @@ class GaStart
         $request->setPageSize($pageSize);
         $request->setPageToken($pageToken);
 
-        $body = new Google_Service_AnalyticsReporting_GetReportsRequest();
+        $body = new \Google_Service_AnalyticsReporting_GetReportsRequest();
         $body->setReportRequests( array( $request) );
 
-        try{
-            $this->response = $this->analytics->reports->batchGet( $body );
-        }catch (Exception $e){
-            $e->getMessage();
-        }
+        $response = $this->analytics->reports->batchGet( $body );
+
+        return $response;
     }
 
     /**
      * 处理ga信息并将相关数据写入EslasticSearch与Prometheus
+     * @param $reports
      */
-    public function printResults(){
-        for ( $reportIndex = 0; $reportIndex < count( $this->response ); $reportIndex++ ) {
-            $report = $this->response[ $reportIndex ];
+    public function printResults($reports){
+        $index = $this->config['index'];
+        for ( $reportIndex = 0; $reportIndex < count( $reports ); $reportIndex++ ) {
+            $report = $reports[ $reportIndex ];
             $header = $report->getColumnHeader();
             $dimensionHeaders = $header->getDimensions();
             $metricHeaders = $header->getMetricHeader()->getMetricHeaderEntries();
@@ -160,7 +169,13 @@ class GaStart
 
             //es创建索引
             $es = new ElasticSearchStart();
-            $es->setHosts(['localhost'])->build()->addDatabases();
+            $esMode = $es->setHosts(ES_HOST)->build();
+            $days = (strtotime($this->searchParams['lastTime'])-strtotime($this->searchParams['beforeTime']))/(24*3600);
+            for ($i=0; $i<=$days; $i++){
+                $time = strtotime($this->searchParams['beforeTime'])+(24*3600*$i);
+                $this->config['index'] = $index."-".date("Ymd", $time);
+                $esMode->addDatabases($this->config);
+            }
 
             for ( $rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
                 $row = $rows[ $rowIndex ];
@@ -169,24 +184,49 @@ class GaStart
                 $dimension = [];
                 $metric = [];
                 for ($i = 0; $i < count($dimensionHeaders) && $i < count($dimensions); $i++) {
-                    $dimension['key'] = $dimensionHeaders[$i];
-                    $dimension['value'] = $dimensions[$i];
+                    $dimension[][$dimensionHeaders[$i]] = $dimensions[$i];
                 }
 
                 for ($j = 0; $j < count($metrics); $j++) {
                     $values = $metrics[$j]->getValues();
                     for ($k = 0; $k < count($values); $k++) {
                         $entry = $metricHeaders[$k];
-                        $metric['key'] = $entry->getName();
-                        $metric['value'] = $values[$k];
+                        $metric[][$entry->getName()] = $values[$k];
                     }
                 }
 
-                //elastricsearch
+                //elastricsearch创建索引文档
+                $addData1 = [];
+                $addData = array_merge($dimension, $metric);
+                foreach ($addData as $k1=>$v1){
+                    foreach ($v1 as $k2=>$v2){
+                        $addData1[$k2] = $v2;
+                    }
+                }
+                unset($addData);
 
+                $params1 = [
+                    'index' => 'gc-ga-'.$addData1['ga:date'],
+                    'type' => 'gc_ga_event_date_detail',
+                    'body' => $addData1
+                ];
 
+                $esMode->addDocumentation($params1);
             }
         }
     }
 
+    /**
+     * 获取执行结果
+     */
+    public function getResult(){
+        $response = $this->initializeAnalytics()
+            ->getRequest();
+        try {
+            $data = $this->printResults($response);
+            return json_encode(['status'=>'success', 'msg'=>'写入成功', 'data'=>$data]);
+        }catch (\Exception $e){
+            return json_encode(['status'=>'failed', 'msg'=>$e->getMessage()]);
+        }
+    }
 }

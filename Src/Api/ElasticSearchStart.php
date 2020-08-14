@@ -94,10 +94,19 @@ class ElasticSearchStart
     public function addDocumentation(array $params){
         try{
             $response = $this->client->index($params);
-            return $response;
         }catch (TransportException $e){
             return $e->getPrevious();
         }
+    }
+
+    /**
+     * 搜索Documentation
+     * @param array $params
+     * @return mixed
+     */
+    public function searchDocumentation(array $params){
+        $res = $this->client->search($params);
+        return $res;
     }
 
     public function __call($name, $arguments)
