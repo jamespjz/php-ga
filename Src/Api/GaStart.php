@@ -9,6 +9,7 @@
 namespace Jamespi\GaClinet\Api;
 
 use Jamespi\GaClinet\Api\ElasticSearchStart;
+use Jamespi\GaClinet\Api\PrometheusStart;
 use Kafka\Exception;
 
 class GaStart
@@ -157,8 +158,9 @@ class GaStart
     /**
      * 处理ga信息并将相关数据写入EslasticSearch与Prometheus
      * @param $reports
+     * @param int $type
      */
-    public function printResults($reports){
+    public function printResults($reports, $type){
         $index = $this->config['index'];
         for ( $reportIndex = 0; $reportIndex < count( $reports ); $reportIndex++ ) {
             $report = $reports[ $reportIndex ];
@@ -168,13 +170,15 @@ class GaStart
             $rows = $report->getData()->getRows();
 
             //es创建索引
-            $es = new ElasticSearchStart();
-            $esMode = $es->setHosts(ES_HOST)->build();
-            $days = (strtotime($this->searchParams['lastTime'])-strtotime($this->searchParams['beforeTime']))/(24*3600);
-            for ($i=0; $i<=$days; $i++){
-                $time = strtotime($this->searchParams['beforeTime'])+(24*3600*$i);
-                $this->config['index'] = $index."-".date("Ymd", $time);
-                $esMode->addDatabases($this->config);
+            if(!$type) {
+                $es = new ElasticSearchStart();
+                $esMode = $es->setHosts(ES_HOST)->build();
+                $days = (strtotime($this->searchParams['lastTime']) - strtotime($this->searchParams['beforeTime'])) / (24 * 3600);
+                for ($i = 0; $i <= $days; $i++) {
+                    $time = strtotime($this->searchParams['beforeTime']) + (24 * 3600 * $i);
+                    $this->config['index'] = $index . "-" . date("Ymd", $time);
+                    $esMode->addDatabases($this->config);
+                }
             }
 
             for ( $rowIndex = 0; $rowIndex < count($rows); $rowIndex++) {
@@ -196,34 +200,44 @@ class GaStart
                 }
 
                 //elastricsearch创建索引文档
-                $addData1 = [];
-                $addData = array_merge($dimension, $metric);
-                foreach ($addData as $k1=>$v1){
-                    foreach ($v1 as $k2=>$v2){
-                        $addData1[$k2] = $v2;
+                if ($type){
+                    $keys = [];
+                    $prometheus = new PrometheusStart();
+                    foreach ($this->dimensionData as $value){
+                        $keys[] = $value->name;
                     }
+                    $prometheus->addMetrics($dimension, $metric, $keys, $this->searchParams['viewId']);
+                }else {
+                    $addData1 = [];
+                    $addData = array_merge($dimension, $metric);
+                    foreach ($addData as $k1 => $v1) {
+                        foreach ($v1 as $k2 => $v2) {
+                            $addData1[$k2] = $v2;
+                        }
+                    }
+                    unset($addData);
+
+                    $params1 = [
+                        'index' => 'gc-ga-' . $addData1['ga:date'],
+                        'type' => GC_GA_EVENT_TITLE,
+                        'body' => $addData1
+                    ];
+
+                    $esMode->addDocumentation($params1);
                 }
-                unset($addData);
-
-                $params1 = [
-                    'index' => 'gc-ga-'.$addData1['ga:date'],
-                    'type' => 'gc_ga_event_date_detail',
-                    'body' => $addData1
-                ];
-
-                $esMode->addDocumentation($params1);
             }
         }
     }
 
     /**
      * 获取执行结果
+     * @param int $type 查询类型（0：es日志  1：Prometheus指标）
      */
-    public function getResult(){
+    public function getResult(int $type = 0){
         $response = $this->initializeAnalytics()
             ->getRequest();
         try {
-            $data = $this->printResults($response);
+            $data = $this->printResults($response, $type);
             return json_encode(['status'=>'success', 'msg'=>'写入成功', 'data'=>$data]);
         }catch (\Exception $e){
             return json_encode(['status'=>'failed', 'msg'=>$e->getMessage()]);
