@@ -25,8 +25,6 @@ GA-Prometheus-Elasticsearch-php
 require_once 'vendor/autoload.php';
 use Jamespi\GaClinet\Start;
 
-#es的type(表名名称自己定义)
-define("GC_GA_EVENT_TITLE", 'gc_ga_title');
 #ES的host
 define("ES_HOST", ["192.168.86.196"]);
 
