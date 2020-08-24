@@ -82,6 +82,20 @@ class ElasticSearchStart
     }
 
     /**
+     * 判断index是否存在
+     * @param array $params
+     * @return \Exception
+     */
+    public function isExists(array $params = []){
+        try{
+            $response = $this->client->indices()->exists($params);
+            return $response;
+        }catch (TransportException $e){
+            return $e->getPrevious();
+        }
+    }
+
+    /**
      * 索引文档
      * @param array $params 文档参数
      * $params = [

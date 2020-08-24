@@ -177,7 +177,10 @@ class GaStart
                 for ($i = 0; $i <= $days; $i++) {
                     $time = strtotime($this->searchParams['beforeTime']) + (24 * 3600 * $i);
                     $this->config['index'] = $index . "-" . date("Ymd", $time);
-                    $esMode->addDatabases($this->config);
+                    $response = $esMode->isExists(['index'=>$this->config['index']]);
+                    if(!$response) {
+                        $esMode->addDatabases($this->config);
+                    }
                 }
             }
 
@@ -219,7 +222,7 @@ class GaStart
 
                     $params1 = [
                         'index' => 'gc-ga-' . $addData1['ga:date'],
-                        'type' => GC_GA_EVENT_TITLE,
+//                        'type' => GC_GA_EVENT_TITLE,
                         'body' => $addData1
                     ];
 
