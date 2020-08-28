@@ -99,7 +99,7 @@ class PrometheusStart
         $result = $renderer->render($registry->getMetricFamilySamples());
 
         header('Content-type: ' . RenderTextFormat::MIME_TYPE);
-        echo $result;
+        printf($result);
     }
 
     /**

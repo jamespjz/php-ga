@@ -222,7 +222,7 @@ class GaStart
 
                     $params1 = [
                         'index' => 'gc-ga-' . $addData1['ga:date'],
-//                        'type' => GC_GA_EVENT_TITLE,
+                        'type' => $this->searchParams['GaEventTitle']??'_doc',
                         'body' => $addData1
                     ];
 
