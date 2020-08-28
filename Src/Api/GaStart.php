@@ -161,6 +161,7 @@ class GaStart
      * @param int $type
      */
     public function printResults($reports, $type){
+		$GLOBALS['nextPageToken'] = $reports->reports[0]->nextPageToken;
         $index = $this->config['index'];
         for ( $reportIndex = 0; $reportIndex < count( $reports ); $reportIndex++ ) {
             $report = $reports[ $reportIndex ];

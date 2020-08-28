@@ -54,7 +54,17 @@ $searchParams = [
 ];
 
 //采集ga数据写入到es调用
-echo (new Start())->run($dimension_params, $metric_params, $searchParams)->getResult();
+$mode = (new Start());
+while(true){
+	if($GLOBALS['nextPageToken']){
+		$searchParams['pageToken'] = $GLOBALS['nextPageToken'];
+	}else{
+		if($GLOBALS['nextPageToken'] === NULL){
+			break;
+		}
+	}
+}
+echo $mode->run($dimension_params, $metric_params, $searchParams)->getResult();
 
 ````
 
