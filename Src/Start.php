@@ -36,7 +36,7 @@ class Start
     public function __construct()
     {
         $this->config = require_once __DIR__.'/Config/Config.php';
-		$GLOBALS['nextPageToken'] = 0;
+		$GLOBALS['nextPageToken'] = '0';
     }
 
     /**

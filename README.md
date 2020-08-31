@@ -57,14 +57,14 @@ $searchParams = [
 $mode = (new Start());
 while(true){
 	if($GLOBALS['nextPageToken']){
-		$searchParams['pageToken'] = $GLOBALS['nextPageToken'];
+		$searchParams['pageToken'] = (string)$GLOBALS['nextPageToken'];
 	}else{
 		if($GLOBALS['nextPageToken'] === NULL){
 			break;
 		}
 	}
+	echo $mode->run($dimension_params, $metric_params, $searchParams)->getResult();
 }
-echo $mode->run($dimension_params, $metric_params, $searchParams)->getResult();
 
 ````
 
@@ -105,9 +105,23 @@ $searchParams = [
     'pageSize' => 1000,
     'pageToken' => '0'
 ];
-//获取Prometheus数据格式指标数据
-echo (new Start())->run($dimension_params, $metric_params, $searchParams, 3)->getMetrics();
-//采集ga指标数据写入到Prometheus
-//echo (new Start())->run($dimension_params, $metric_params, $searchParams)->getResult(1);
+
+//采集ga数据写入到es调用
+$mode = (new Start());
+while(true){
+	if($GLOBALS['nextPageToken']){
+		$searchParams['pageToken'] = (string)$GLOBALS['nextPageToken'];
+	}else{
+		if($GLOBALS['nextPageToken'] === NULL){
+			break;
+		}
+	}
+	
+	//获取Prometheus数据格式指标数据
+	echo (new Start())->run($dimension_params, $metric_params, $searchParams, 3)->getMetrics();
+	//采集ga指标数据写入到Prometheus
+	//echo (new Start())->run($dimension_params, $metric_params, $searchParams)->getResult(1);
+}
+
 ```
 
