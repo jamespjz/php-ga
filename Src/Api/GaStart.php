@@ -171,6 +171,7 @@ class GaStart
             $rows = $report->getData()->getRows();
 
             //es创建索引
+			$indexParams = $this->searchParams['GaEventTitle']?"-".$this->searchParams['GaEventTitle']:'';
             if(!$type) {
                 $es = new ElasticSearchStart();
                 $esMode = $es->setHosts(ES_HOST)->build();
@@ -223,7 +224,7 @@ class GaStart
                     unset($addData);
 
                     $params1 = [
-                        'index' => 'gc-ga-' . $addData1['ga:date'],
+                        'index' => 'gc-ga-' . $addData1['ga:date'].$indexParams,
                         'type' => $this->searchParams['GaEventTitle']??'_doc',
                         'body' => $addData1
                     ];
