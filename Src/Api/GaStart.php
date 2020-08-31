@@ -177,7 +177,8 @@ class GaStart
                 $days = (strtotime($this->searchParams['lastTime']) - strtotime($this->searchParams['beforeTime'])) / (24 * 3600);
                 for ($i = 0; $i <= $days; $i++) {
                     $time = strtotime($this->searchParams['beforeTime']) + (24 * 3600 * $i);
-                    $this->config['index'] = $index . "-" . date("Ymd", $time);
+					$indexParams = $this->searchParams['GaEventTitle']?"-".$this->searchParams['GaEventTitle']:'';
+                    $this->config['index'] = $index . "-" . date("Ymd", $time).$indexParams;
                     $response = $esMode->isExists(['index'=>$this->config['index']]);
                     if(!$response) {
                         $esMode->addDatabases($this->config);
