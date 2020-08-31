@@ -224,7 +224,7 @@ class GaStart
                     unset($addData);
 
                     $params1 = [
-                        'index' => 'gc-ga-' . $addData1['ga:date'].$indexParams,
+						'index' => 'gc-ga-' . date("Ymd", $time).$indexParams,
                         'type' => $this->searchParams['GaEventTitle']??'_doc',
                         'body' => $addData1
                     ];
