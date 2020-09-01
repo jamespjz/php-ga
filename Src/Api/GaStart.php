@@ -222,17 +222,17 @@ class GaStart
                         }
                     }
                     unset($addData);
-
-                    $params1 = [
-						'index' => 'gc-ga-' . date("Ymd", $time).$indexParams,
-                        'type' => $this->searchParams['GaEventTitle']??'_doc',
-                        'body' => $addData1
-                    ];
-
-                    $esMode->addDocumentation($params1);
+					
                 }
             }
         }
+		$params1 = [
+            'index' => 'gc-ga-' . date("Ymd", $time).$indexParams,
+            'type' => '_doc',
+            'body' => $addData1
+        ];
+
+        $esMode->addDocumentationBulk($params1);
     }
 
     /**

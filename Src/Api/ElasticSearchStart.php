@@ -112,6 +112,19 @@ class ElasticSearchStart
             return $e->getPrevious();
         }
     }
+	
+	/**
+     * 批量插入多条
+     * @param array $params
+     * @return \Exception
+     */
+    public function addDocumentationBulk(array $params){
+        try{
+            $response = $this->client->bulk($params);
+        }catch (TransportException $e){
+            return $e->getPrevious();
+        }
+    }
 
     /**
      * 搜索Documentation
