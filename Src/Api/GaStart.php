@@ -164,6 +164,7 @@ class GaStart
 		$GLOBALS['nextPageToken'] = $reports->reports[0]->nextPageToken;
         $index = $this->config['index'];
         for ( $reportIndex = 0; $reportIndex < count( $reports ); $reportIndex++ ) {
+			$params1 = [];
             $report = $reports[ $reportIndex ];
             $header = $report->getColumnHeader();
             $dimensionHeaders = $header->getDimensions();
@@ -206,6 +207,7 @@ class GaStart
                 }
 
                 //elastricsearch创建索引文档
+				$addData1 = [];
                 if ($type){
                     $keys = [];
                     $prometheus = new PrometheusStart();
@@ -221,16 +223,19 @@ class GaStart
                             $addData1[$k2] = $v2;
                         }
                     }
+					
+					$params1['body'][] = [
+                        'index' => [
+                            '_index' => 'gc-ga-' . date("Ymd", $time).$indexParams,
+                            '_type' => '_doc',
+                        ]
+                    ];
+                    $params1['body'][] = $addData1;
                     unset($addData);
 					
                 }
             }
         }
-		$params1 = [
-            'index' => 'gc-ga-' . date("Ymd", $time).$indexParams,
-            'type' => '_doc',
-            'body' => $addData1
-        ];
 
         $esMode->addDocumentationBulk($params1);
     }
