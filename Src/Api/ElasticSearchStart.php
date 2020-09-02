@@ -14,23 +14,26 @@ use Elasticsearch\Common\Exceptions\MaxRetriesException;
 class ElasticSearchStart
 {
     /**
-     * 维度参数
+     * 搜索参数
      * @var array
      */
-    protected $dimension_params = [];
-    /**
-     * 指标参数
-     * @var array
-     */
-    protected $metric_params = [];
-    /**
-     *
-     * @var array
-     */
-    protected $dimension_data = [];
+    protected $params = [
+        'index' => 'gc-ga-20200830-xxxx2',
+        'type' => '_doc',
+        'body' => [
+            'query' => [
+                'constant_score' => [
+                    'filter' => [
 
-    protected $metric_data = [];
-
+                    ]
+                ]
+            ]
+        ]
+    ];
+    /**
+     * 实例化链接
+     * @var ClientBuilder
+     */
     protected $client;
 
     public function __construct()
@@ -134,6 +137,44 @@ class ElasticSearchStart
     public function searchDocumentation(array $params){
         $res = $this->client->search($params);
         return $res;
+    }
+	
+	/**
+     * 获取es搜索结果
+     * @param string $index 索引名称
+     * @param string $mode 选择搜索类型
+     * @param array $params 搜索条件
+     * @param string $type 索引类型
+     * @param string $score 评分模式
+     * @return string
+     */
+    public function getSearchResult(string $index, string $mode, array $params, $type='_doc', $score = 'constant_score'){
+        switch ($mode){
+            case 'range':
+                $this->params['index'] = $index;
+                $this->params['type'] = $type;
+                $this->params['body']['query'][$score]['filter'] = [
+                    'range' => $params
+                ];
+                break;
+            case 'match':
+                $this->params['index'] = $index;
+                $this->params['type'] = $type;
+                $this->params['body']['query'][$score]['filter'] = [
+                    'match' => $params
+                ];
+                break;
+            case 'term':
+                $this->params['index'] = $index;
+                $this->params['type'] = $type;
+                $this->params['body']['query'][$score]['filter'] = [
+                    'term' => $params
+                ];
+                break;
+        }
+
+        $res = $this->setHosts(ES_HOST)->build()->searchDocumentation($this->params);
+        return json_encode(['status'=>'success', 'msg'=>'success', 'data'=>$res]);
     }
 
     public function __call($name, $arguments)

@@ -68,6 +68,76 @@ while(true){
 
 ````
 
+- es搜索调用教程
+ ````
+ /**
+  * 搜索es数据
+  * $where数据类型为数组 为搜索条件
+  *
+  * getSearchResult方法参数1：es索引名称；参数2：搜索模式；参数3：搜索条件
+  * 搜索模式有：range、match、term
+  * 其中range模式为范围搜索，如示例一；match模式为匹配搜索试用全文搜索场景，如示例二；term模式为精确值查询，如示例三
+  */
+  $where = [
+      'ga:dateHourMinute' => [
+          'gte' => 202008300009,
+          'lt' => 202008300010,
+      ]
+  ];
+  echo (new Start())->run($dimension_params, $metric_params, $searchParams, 2)->getSearchResult('gc-ga-20200830-xxxx2', 'range', $where);
+  #示例一(range范围查找)
+  $params = [
+      'index' => 'gc-ga-20200830-xxxx2',
+      'type' => '_doc',
+      'body' => [
+          'query' => [
+              'constant_score' => [
+                  'filter' => [
+                      'range' => [
+                          'ga:dateHourMinute' => [
+                              'gte' => 202008300009,
+                              'lt' => 202008300010,
+                          ]
+                      ]
+                  ]
+              ]
+          ]
+      ]
+  ];
+  #示例二(match匹配查询)
+  $params = [
+      'index' => 'gc-ga-20200830-xxxx2',
+      'type' => '_doc',
+      'body' => [
+          'query' => [
+              'constant_score' => [
+                  'filter' => [
+                      'match' => [
+                          'ga:dateHourMinute' => 202008300009
+                      ]
+                  ]
+              ]
+          ]
+      ]
+  ];
+  #示例三 (term精确值查询)
+  $params = [
+      'index' => 'gc-ga-20200830-xxxx2',
+      'type' => '_doc',
+      'body' => [
+          'query' => [
+              'constant_score' => [
+                  'filter' => [
+                      'term' => [
+                          'ga:dateHourMinute' => 202008300009
+                      ]
+                  ]
+              ]
+          ]
+      ]
+  ];
+ ````
+ 
 
 Prometheus
 --------------
