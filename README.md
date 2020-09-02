@@ -74,7 +74,7 @@ while(true){
   * 搜索es数据
   * $where数据类型为数组 为搜索条件
   *
-  * getSearchResult方法参数1：es索引名称；参数2：搜索模式；参数3：搜索条件
+  * getSearchResult方法参数1：es索引名称；参数2：搜索模式；参数3：搜索条件；参数4：搜索条数开始位置（默认0）；参数5：搜索条数（默认1000）；参数6：索引类型（默认_doc）；参数7：评分模式(默认constant_score)
   * 搜索模式有：range、match、term
   * 其中range模式为范围搜索，如示例一；match模式为匹配搜索试用全文搜索场景，如示例二；term模式为精确值查询，如示例三
   */
@@ -84,7 +84,11 @@ while(true){
           'lt' => 202008300010,
       ]
   ];
+  $from = 0;
+  $size = 1000;
+  //搜索
   echo (new Start())->run($dimension_params, $metric_params, $searchParams, 2)->getSearchResult('gc-ga-20200830-xxxx2', 'range', $where);
+  
   #示例一(range范围查找)
   $params = [
       'index' => 'gc-ga-20200830-xxxx2',

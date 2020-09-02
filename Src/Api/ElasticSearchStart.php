@@ -28,7 +28,9 @@ class ElasticSearchStart
                     ]
                 ]
             ]
-        ]
+        ],
+		'from' => 0,
+        'size' => 1000
     ];
     /**
      * 实例化链接
@@ -148,7 +150,7 @@ class ElasticSearchStart
      * @param string $score 评分模式
      * @return string
      */
-    public function getSearchResult(string $index, string $mode, array $params, $type='_doc', $score = 'constant_score'){
+    public function getSearchResult(string $index, string $mode, array $params, $from=0, $size=1000, $type='_doc', $score = 'constant_score'){
         switch ($mode){
             case 'range':
                 $this->params['index'] = $index;
@@ -156,6 +158,8 @@ class ElasticSearchStart
                 $this->params['body']['query'][$score]['filter'] = [
                     'range' => $params
                 ];
+				$this->params['body']['from'] = $from;
+                $this->params['body']['size'] = $size;
                 break;
             case 'match':
                 $this->params['index'] = $index;
@@ -163,6 +167,8 @@ class ElasticSearchStart
                 $this->params['body']['query'][$score]['filter'] = [
                     'match' => $params
                 ];
+				$this->params['body']['from'] = $from;
+                $this->params['body']['size'] = $size;
                 break;
             case 'term':
                 $this->params['index'] = $index;
@@ -170,6 +176,8 @@ class ElasticSearchStart
                 $this->params['body']['query'][$score]['filter'] = [
                     'term' => $params
                 ];
+				$this->params['body']['from'] = $from;
+                $this->params['body']['size'] = $size;
                 break;
         }
 
