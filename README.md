@@ -78,13 +78,26 @@ while(true){
   * 搜索模式有：range、match、term
   * 其中range模式为范围搜索，如示例一；match模式为匹配搜索试用全文搜索场景，如示例二；term模式为精确值查询，如示例三
   */
+  //范围搜索
   $where = [
       'ga:dateHourMinute' => [
           'gte' => 202008300009,
           'lt' => 202008300010,
       ]
   ];
-  $aggMode = 'stats';//也能选择这些类型：stats、count、max、min、avg（stats包含count、max、min、avg）
+  /**
+   * match/term搜索
+   * $where = [
+   *  'ga:dateHourMinute' => 202008300009
+   * ];
+   */
+   // 聚合字段集合
+  $aggs = [
+	'ga:totalEvents',
+	'ga:pageviews'
+  ];
+  
+  $aggMode = 'terms';//选择这些类型：terms、stats、count、max、min、avg（stats包含count、max、min、avg）
   $from = 0;
   $size = 1000;
   //搜索
