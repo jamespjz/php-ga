@@ -172,7 +172,7 @@ class GaStart
             $rows = $report->getData()->getRows();
 
             //es创建索引
-			$centerTiltle = 'minute';
+			$centerTiltle = 'days';
 			$indexParams = $this->searchParams['GaEventTitle']?"-".$this->searchParams['GaEventTitle']:'';
             if(!$type) {
                 $es = new ElasticSearchStart();
