@@ -184,6 +184,81 @@ class ElasticSearchStart
         $res = $this->setHosts(ES_HOST)->build()->searchDocumentation($this->params);
         return json_encode(['status'=>'success', 'msg'=>'success', 'data'=>$res]);
     }
+	
+	/**
+     * 聚合搜索
+     * @param string $index 索引名称
+     * @param string $mode 选择搜索模式
+     * @param array $params 搜索条件
+     * @param array $aggParams 聚合字段
+	 * @param string $aggMode 聚合操作类型
+     * @param int $from 搜索条数开始位置
+     * @param int $size 搜索条数
+     * @param string $type 索引类型
+     * @param string $score 评分模式
+     * @return string
+     */
+    public function getAggsResult(string $index, string $mode, array $params, array $aggParams, string $aggMode='term', $from=0, $size=1000, $type='_doc', $score = 'constant_score'){
+        switch ($mode){
+            case 'range':
+                $this->params['index'] = $index;
+                $this->params['type'] = $type;
+                $this->params['body']['query'][$score]['filter'] = [
+                    'range' => $params
+                ];
+                $this->params['body']['from'] = $from;
+                $this->params['body']['size'] = $size;
+                break;
+            case 'match':
+                $this->params['index'] = $index;
+                $this->params['type'] = $type;
+                $this->params['body']['query'][$score]['filter'] = [
+                    'match' => $params
+                ];
+                $this->params['body']['from'] = $from;
+                $this->params['body']['size'] = $size;
+                break;
+            case 'term':
+                $this->params['index'] = $index;
+                $this->params['type'] = $type;
+                $this->params['body']['query'][$score]['filter'] = [
+                    'term' => $params
+                ];
+                $this->params['body']['from'] = $from;
+                $this->params['body']['size'] = $size;
+                break;
+        }
+
+        if($aggParams){
+            foreach ($aggParams as $agg){
+                $aggKey = 'my_group_by_'.$agg;
+                $this->params['body']['aggs'][$aggKey] = [
+                    $aggMode => [
+                        'field' => $agg
+                    ]
+                ];
+            }
+        }
+
+        $res = $this->setHosts(ES_HOST)->build()->searchDocumentation($this->params);
+        return json_encode(['status'=>'success', 'msg'=>'success', 'data'=>$res]);
+    }
+	
+	/**
+     * 创建模板
+     * @param string $templateName 模板名称
+     * @param string $jsonName json文件名称
+     * @return string
+     */
+    public function createMappings($templateName='gc-ga', $jsonName=''){
+        $jsonPath = dirname(dirname(dirname(dirname(dirname(__DIR__)))))."/".$jsonName;
+        $esip = ES_HOST;
+        $url="http://".$esip[0].":9200/_template/".$templateName;
+        $data = file_get_contents($jsonPath);
+
+        $info = $this->posturl($url, $data);
+        return json_encode(['status'=>'success', 'msg'=>'success', 'data'=>$info]);
+    }
 
     public function __call($name, $arguments)
     {

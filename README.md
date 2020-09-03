@@ -84,10 +84,15 @@ while(true){
           'lt' => 202008300010,
       ]
   ];
+  $aggMode = 'stats';//也能选择这些类型：stats、count、max、min、avg（stats包含count、max、min、avg）
   $from = 0;
   $size = 1000;
   //搜索
   echo (new Start())->run($dimension_params, $metric_params, $searchParams, 2)->getSearchResult('gc-ga-20200830-xxxx2', 'range', $where);
+  //创建索引模板
+  echo (new Start())->run($dimension_params, $metric_params, $searchParams, 2)->createMappings('gc-ga-test', 'es_template.json');
+  //聚合搜索
+  echo (new Start())->run($dimension_params, $metric_params, $searchParams, 2)->getAggsResult('gc-ga-minute-20200830-pppp01', 'term', $where, $aggs, $from, $size);
   
   #示例一(range范围查找)
   $params = [
