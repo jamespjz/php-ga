@@ -9,10 +9,13 @@
 namespace Jamespi\GaClinet\Api;
 
 use Elasticsearch\ClientBuilder;
+use Jamespi\GaClinet\Api\CommonTool;
 use Elasticsearch\Common\Exceptions\TransportException;
 use Elasticsearch\Common\Exceptions\MaxRetriesException;
 class ElasticSearchStart
 {
+	use CommonTool;
+	
     /**
      * 搜索参数
      * @var array
