@@ -187,6 +187,9 @@ class GaStart
                         if ($p->name == 'ga:dateHourMinute') {
                             $centerTiltle = 'minute';
                             $this->config['index'] = $index . "-".$centerTiltle."-" . date("Ymd", $time) . $indexParams;
+                        }elseif ($p->name == 'ga:dateHour'){
+                            $centerTiltle = 'hour';
+                            $this->config['index'] = $index . "-".$centerTiltle."-" . date("Ymd", $time) . $indexParams;
                         }
                     }
 					
