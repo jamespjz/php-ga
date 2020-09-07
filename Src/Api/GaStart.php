@@ -182,14 +182,14 @@ class GaStart
                     $time = strtotime($this->searchParams['beforeTime']) + (24 * 3600 * $i);
 					$indexParams = $this->searchParams['GaEventTitle']?"-".$this->searchParams['GaEventTitle']:'';
                     
-					$this->config['index'] = $index . "-".$centerTiltle."-" . date("Ymd", $time).$indexParams;
+					$this->config['index'] = $index . "-" . $indexParams ."-".$centerTiltle."-" . date("Ymd", $time);
                     foreach ($this->dimensionData as $p){
                         if ($p->name == 'ga:dateHourMinute') {
                             $centerTiltle = 'minute';
-                            $this->config['index'] = $index . "-".$centerTiltle."-" . date("Ymd", $time) . $indexParams;
+                            $this->config['index'] = $index . "-" . $indexParams . "-".$centerTiltle."-" . date("Ymd", $time);
                         }elseif ($p->name == 'ga:dateHour'){
                             $centerTiltle = 'hour';
-                            $this->config['index'] = $index . "-".$centerTiltle."-" . date("Ymd", $time) . $indexParams;
+                            $this->config['index'] = $index . "-" . $indexParams . "-".$centerTiltle."-" . date("Ymd", $time);
                         }
                     }
 					
@@ -238,7 +238,7 @@ class GaStart
 					
 					$params1['body'][] = [
                         'index' => [
-                            '_index' => $index."-".$centerTiltle."-" . date("Ymd", $time).$indexParams,
+                            '_index' => $index."-".$indexParams."-".$centerTiltle."-" . date("Ymd", $time),
                             '_type' => '_doc',
                         ]
                     ];
