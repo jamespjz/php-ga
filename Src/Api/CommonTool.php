@@ -12,7 +12,6 @@ namespace Jamespi\GaClinet\Api;
 trait CommonTool
 {
     function posturl($url,$data){
-        $data=json_encode($data,JSON_UNESCAPED_UNICODE);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_URL, $url);
