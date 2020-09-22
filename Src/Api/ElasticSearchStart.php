@@ -184,8 +184,12 @@ class ElasticSearchStart
                 break;
         }
 
-        $res = $this->setHosts(ES_HOST)->build()->searchDocumentation($this->params);
-        return json_encode(['status'=>'success', 'msg'=>'success', 'data'=>$res]);
+        try {
+            $res = $this->setHosts(ES_HOST)->build()->searchDocumentation($this->params);
+            return json_encode(['status'=>'success', 'msg'=>'success', 'data'=>$res]);
+        }catch (\Exception $e) {
+            return json_encode(['status' => 'failed', 'msg' => $e->getMessage()]);
+        }
     }
 	
 	/**
@@ -243,8 +247,12 @@ class ElasticSearchStart
             }
         }
 
-        $res = $this->setHosts(ES_HOST)->build()->searchDocumentation($this->params);
-        return json_encode(['status'=>'success', 'msg'=>'success', 'data'=>$res]);
+        try {
+            $res = $this->setHosts(ES_HOST)->build()->searchDocumentation($this->params);
+            return json_encode(['status' => 'success', 'msg' => 'success', 'data' => $res]);
+        }catch (\Exception $e) {
+            return json_encode(['status' => 'failed', 'msg' => $e->getMessage()]);
+        }
     }
 	
 	/**
@@ -259,8 +267,12 @@ class ElasticSearchStart
         $url="http://".$esip[0].":9200/_template/".$templateName;
         $data = file_get_contents($jsonPath);
 
-        $info = $this->posturl($url, $data);
-        return json_encode(['status'=>'success', 'msg'=>'success', 'data'=>$info]);
+        try {
+            $info = $this->posturl($url, $data);
+            return json_encode(['status'=>'success', 'msg'=>'success', 'data'=>$info]);
+        }catch (\Exception $e) {
+            return json_encode(['status' => 'failed', 'msg' => $e->getMessage()]);
+        }
     }
 
     public function __call($name, $arguments)
