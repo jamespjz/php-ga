@@ -172,7 +172,6 @@ class GaStart
             $rows = $report->getData()->getRows();
 
             //es创建索引
-			$centerTiltle = 'days';
 			$indexParams = $this->searchParams['GaEventTitle']?"-".$this->searchParams['GaEventTitle']:'';
             if(!$type) {
                 $es = new ElasticSearchStart();
@@ -182,14 +181,14 @@ class GaStart
                     $time = strtotime($this->searchParams['beforeTime']) + (24 * 3600 * $i);
 					$indexParams = $this->searchParams['GaEventTitle']?"-".$this->searchParams['GaEventTitle']:'';
                     
-					$this->config['index'] = $index . $indexParams ."-".$centerTiltle."-" . date("Ymd", $time);
+					$this->config['index'] = $index . $indexParams ."-" . date("Ymd", $time);
                     foreach ($this->dimensionData as $p){
                         if ($p->name == 'ga:dateHourMinute') {
                             $centerTiltle = 'minute';
-                            $this->config['index'] = $index . $indexParams . "-".$centerTiltle."-" . date("Ymd", $time);
+                            $this->config['index'] = $index . $indexParams ."-" . date("Ymd", $time);
                         }elseif ($p->name == 'ga:dateHour'){
                             $centerTiltle = 'hour';
-                            $this->config['index'] = $index . $indexParams . "-".$centerTiltle."-" . date("Ymd", $time);
+                            $this->config['index'] = $index . $indexParams ."-" . date("Ymd", $time);
                         }
                     }
 					
@@ -238,7 +237,7 @@ class GaStart
 					
 					$params1['body'][] = [
                         'index' => [
-                            '_index' => $index.$indexParams."-".$centerTiltle."-" . date("Ymd", $time),
+                            '_index' => $index.$indexParams."-" . date("Ymd", $time),
                             '_type' => '_doc',
                         ]
                     ];
