@@ -232,6 +232,10 @@ class GaStart
                     foreach ($addData as $k1 => $v1) {
                         foreach ($v1 as $k2 => $v2) {
                             $addData1[$k2] = $v2;
+							if($k2 == 'ga:dimension1'){
+                                $new_v = explode("_", $v2);
+                                $addData1['customer_code'] = $new_v[0];
+                            }
                         }
                     }
 					
