@@ -161,8 +161,8 @@ class ElasticSearchStart
                 $this->params['body']['query'][$score]['filter'] = [
                     'range' => $params
                 ];
-				$this->params['body']['from'] = $from;
-                $this->params['body']['size'] = $size;
+				$this->params['from'] = $from;
+                $this->params['size'] = $size;
                 break;
             case 'match':
                 $this->params['index'] = $index;
@@ -170,8 +170,8 @@ class ElasticSearchStart
                 $this->params['body']['query'][$score]['filter'] = [
                     'match' => $params
                 ];
-				$this->params['body']['from'] = $from;
-                $this->params['body']['size'] = $size;
+				$this->params['from'] = $from;
+                $this->params['size'] = $size;
                 break;
             case 'term':
                 $this->params['index'] = $index;
@@ -179,8 +179,8 @@ class ElasticSearchStart
                 $this->params['body']['query'][$score]['filter'] = [
                     'term' => $params
                 ];
-				$this->params['body']['from'] = $from;
-                $this->params['body']['size'] = $size;
+				$this->params['from'] = $from;
+                $this->params['size'] = $size;
                 break;
         }
 
@@ -213,8 +213,8 @@ class ElasticSearchStart
                 $this->params['body']['query'][$score]['filter'] = [
                     'range' => $params
                 ];
-                $this->params['body']['from'] = $from;
-                $this->params['body']['size'] = $size;
+                $this->params['from'] = $from;
+                $this->params['size'] = $size;
                 break;
             case 'match':
                 $this->params['index'] = $index;
@@ -222,8 +222,8 @@ class ElasticSearchStart
                 $this->params['body']['query'][$score]['filter'] = [
                     'match' => $params
                 ];
-                $this->params['body']['from'] = $from;
-                $this->params['body']['size'] = $size;
+                $this->params['from'] = $from;
+                $this->params['size'] = $size;
                 break;
             case 'term':
                 $this->params['index'] = $index;
@@ -231,8 +231,8 @@ class ElasticSearchStart
                 $this->params['body']['query'][$score]['filter'] = [
                     'term' => $params
                 ];
-                $this->params['body']['from'] = $from;
-                $this->params['body']['size'] = $size;
+                $this->params['from'] = $from;
+                $this->params['size'] = $size;
                 break;
         }
 
