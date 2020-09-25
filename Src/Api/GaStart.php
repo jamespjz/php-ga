@@ -239,6 +239,7 @@ class GaStart
 							if($k2 == 'ga:dateHourMinute' || $k2 == 'ga:date'){
                                 $addData1['timestamp'] = date('c', strtotime($v2));
                             }
+							$addData1['viewId'] = $this->searchParams['viewId'];
                         }
                     }
 					
