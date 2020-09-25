@@ -237,7 +237,7 @@ class GaStart
                                 $addData1['customer_code'] = $new_v[0];
                             }
 							if($k2 == 'ga:dateHourMinute' || $k2 == 'ga:date'){
-                                $addData1['timestamp'] = strtotime($v2);
+                                $addData1['timestamp'] = date('c', strtotime($v2));
                             }
                         }
                     }
