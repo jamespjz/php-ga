@@ -182,6 +182,15 @@ class ElasticSearchStart
 				$this->params['from'] = $from;
                 $this->params['size'] = $size;
                 break;
+			case 'query_string':
+                $this->params['index'] = $index;
+                $this->params['type'] = $type;
+                $this->params['body']['query'] = [
+                    'query_string' => $params
+                ];
+                $this->params['from'] = $from;
+                $this->params['size'] = $size;
+                break;
         }
 
         try {
@@ -230,6 +239,15 @@ class ElasticSearchStart
                 $this->params['type'] = $type;
                 $this->params['body']['query'][$score]['filter'] = [
                     'term' => $params
+                ];
+                $this->params['from'] = $from;
+                $this->params['size'] = $size;
+                break;
+			case 'query_string':
+                $this->params['index'] = $index;
+                $this->params['type'] = $type;
+                $this->params['body']['query'] = [
+                    'query_string' => $params
                 ];
                 $this->params['from'] = $from;
                 $this->params['size'] = $size;

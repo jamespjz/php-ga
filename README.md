@@ -96,12 +96,22 @@ while(true){
 	'ga:totalEvents',
 	'ga:pageviews'
   ];
+  /*
+   * 通配符搜索
+   * 目前只支持query_string正则查询
+   */
+   $where1 = [
+		"analyze_wildcard" => true,
+		"default_field" => "ga:pagePath",
+		"query" => "/[\\/]order[\\/]order-list.*/"  /**** 搜索/order/order-list开始的url格式 ****/
+	];
   
   $aggMode = 'terms';//选择这些类型：terms、stats、count、max、min、avg（stats包含count、max、min、avg）
   $from = 0;
   $size = 1000;
   //搜索
-  echo (new Start())->run($dimension_params, $metric_params, $searchParams, 2)->getSearchResult('gc-ga-20200830-xxxx2', 'range', $where);
+  echo (new Start())->run($dimension_params, $metric_params, $searchParams, 2)->getSearchResult('gc-ga-20200830-xxxx2', 'range', $where, $from, $size);
+  /**** query_string正则搜索 echo (new Start())->run($dimension_params, $metric_params, $searchParams, 2)->getSearchResult('gc-ga-user-minute-detail-20200924', 'query_string', $where1, $from, $size); ****/
   //创建索引模板
   echo (new Start())->run($dimension_params, $metric_params, $searchParams, 2)->createMappings('gc-ga-test', 'es_template.json');
   //聚合搜索
