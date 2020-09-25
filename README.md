@@ -116,6 +116,7 @@ while(true){
   echo (new Start())->run($dimension_params, $metric_params, $searchParams, 2)->createMappings('gc-ga-test', 'es_template.json');
   //聚合搜索
   echo (new Start())->run($dimension_params, $metric_params, $searchParams, 2)->getAggsResult('gc-ga-minute-20200830-pppp01', 'term', $where, $aggs, $from, $size);
+  /**** query_string正则搜索 echo (new Start())->run($dimension_params, $metric_params, $searchParams, 2)->getAggsResult('gc-ga-user-minute-detail-20200924', 'query_string', $where1, $aggs, $from, $size); ****/
   
   #示例一(range范围查找)
   $params = [
