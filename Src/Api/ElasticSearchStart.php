@@ -294,7 +294,7 @@ class ElasticSearchStart
             foreach ($boolQuery as $key=>$value){
                 $data1 = [];
                 foreach ($mode[$key] as $k1=>$v1){
-                    $data1[$v1] = $params[$key][$k1];
+                    $data1[][$v1] = $params[$key][$k1];
                 }
                 $data[$value] = $data1;
             }
