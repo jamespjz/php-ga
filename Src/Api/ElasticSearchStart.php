@@ -273,6 +273,59 @@ class ElasticSearchStart
         }
     }
 	
+	    /**
+     * 嵌套聚合搜索
+     * @param string $index 索引名称
+     * @param array $mode 选择搜索模式
+     * @param array $params 搜索条件
+     * @param array $aggParams 聚合字段
+     * @param array $aggMode 聚合操作类型
+     * @param int $from 搜索条数开始位置
+     * @param int $size 搜索条数
+     * @param string $type 索引类型
+     * @param array $boolQuery 组合查询模式
+     * @return string
+     */
+    public function getNestedAggsResult(string $index, array $mode, array $params, array $aggParams, array $aggMode=['term'], $boolQuery = ['must'], $from=0, $size=1000, $type='_doc'){
+        $data = [];
+        $this->params['index'] = $index;
+        $this->params['type'] = $type;
+        if($boolQuery){
+            foreach ($boolQuery as $key=>$value){
+                $data1 = [];
+                foreach ($mode[$key] as $k1=>$v1){
+                    $data1[$v1] = $params[$key][$k1];
+                }
+                $data[$value] = $data1;
+            }
+        }
+
+        $this->params['body']['query'] = [
+            'bool' => $data,
+        ];
+
+        if($aggParams){
+            foreach ($aggParams as $k=>$agg) {
+                foreach ($agg as $ka=>$va){
+                    $aggKey = 'my_group_by_' . $va;
+                    $this->params['body']['aggs'][$aggKey] = [
+                        $aggMode[$k] => [
+                            'field' => $va
+                        ]
+                    ];
+                }
+            }
+        }
+
+        try {
+            $res = $this->setHosts(ES_HOST)->build()->searchDocumentation($this->params);
+            return json_encode(['status' => 'success', 'msg' => 'success', 'data' => $res['aggregations']]);
+        }catch (\Exception $e) {
+            var_dump($e->getMessage());
+            return json_encode(['status' => 'failed', 'msg' => $e->getMessage()]);
+        }
+    }
+	
 	/**
      * 创建模板
      * @param string $templateName 模板名称
